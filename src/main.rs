@@ -13,8 +13,7 @@ fn main() {
         .with_prompt("チーム数か、入力のExcelファイルの名前を入力してください。")
         .interact()
         .expect("エラーです。整数を入力してください");
-    let (team_num, name_map) = if file_name.is_ascii() {
-        let team_num = file_name.parse::<usize>().unwrap();
+    let (team_num, name_map) = if let Ok(team_num) = file_name.parse::<usize>() {
         (team_num, create_number_map(team_num))
     } else {
         let name_map = create_name_map(&file_name);
@@ -126,14 +125,14 @@ fn read_excel(file: &str) -> Vec<String> {
     // Sheet1 という名前のワークシートを読み込む
     if let Some(Ok(range)) = workbook.worksheet_range("Sheet1") {
         let s = range.rows().map(|r| format!("{}", r[0])).collect();
-        return s;
+        s
     } else {
         panic!()
     }
 }
 
 fn create_name_map(file_name: &str) -> HashMap<usize, String> {
-    let mut names = read_excel(file_name);
+    let names = read_excel(file_name);
     let mut map = HashMap::new();
     for (_i, n) in names.into_iter().enumerate() {
         let i = _i + 1;
