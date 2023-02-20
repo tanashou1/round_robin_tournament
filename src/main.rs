@@ -1,4 +1,6 @@
-use std::collections::VecDeque;
+use calamine::{Reader, Xlsx};
+use core::panic;
+use std::collections::{HashMap, VecDeque};
 
 use dialoguer::Input;
 
@@ -7,10 +9,17 @@ use std::io::{prelude::*, BufWriter};
 use std::path::Path;
 
 fn main() {
-    let team_num = Input::<usize>::new()
-        .with_prompt("チーム数を入力してください")
+    let file_name = Input::<String>::new()
+        .with_prompt("チーム数か、入力のExcelファイルの名前を入力してください。")
         .interact()
         .expect("エラーです。整数を入力してください");
+    let (team_num, name_map) = if file_name.is_ascii() {
+        let team_num = file_name.parse::<usize>().unwrap();
+        (team_num, create_number_map(team_num))
+    } else {
+        let name_map = create_name_map(&file_name);
+        (name_map.len(), name_map)
+    };
 
     let court_num = Input::<usize>::new()
         .with_prompt("コート数を入力してください")
@@ -22,10 +31,14 @@ fn main() {
     // コート数がチーム数の半分よりも大きければ、毎回全試合できる
     let court_num = court_num.min(team_num / 2);
     let games_at_once = generate_games_at_once(&games, court_num);
-    output(games_at_once, court_num);
+    output(games_at_once, court_num, name_map);
 }
 
-fn output(games_at_once: Vec<Vec<(usize, usize)>>, court_num: usize) {
+fn output(
+    games_at_once: Vec<Vec<(usize, usize)>>,
+    court_num: usize,
+    name_map: HashMap<usize, String>,
+) {
     let path = Path::new("組合せ結果.csv");
     let mut file = BufWriter::new(
         File::create(path).expect("ファイルを開けませんでした。開いている場合は閉じてください。"),
@@ -50,7 +63,7 @@ fn output(games_at_once: Vec<Vec<(usize, usize)>>, court_num: usize) {
             "第{i}試合,{}",
             games
                 .iter()
-                .map(|(a, b)| format!("{}-{}", a.min(b), a.max(b)))
+                .map(|(a, b)| format!("{}-{}", name_map[a.min(b)], name_map[a.max(b)]))
                 .collect::<Vec<String>>()
                 .join(",")
         );
@@ -105,4 +118,34 @@ fn generate_all_games(team_num: usize) -> Vec<(usize, usize)> {
     }
 
     games
+}
+
+fn read_excel(file: &str) -> Vec<String> {
+    let mut workbook: Xlsx<_> = calamine::open_workbook(file).unwrap();
+
+    // Sheet1 という名前のワークシートを読み込む
+    if let Some(Ok(range)) = workbook.worksheet_range("Sheet1") {
+        let s = range.rows().map(|r| format!("{}", r[0])).collect();
+        return s;
+    } else {
+        panic!()
+    }
+}
+
+fn create_name_map(file_name: &str) -> HashMap<usize, String> {
+    let mut names = read_excel(file_name);
+    let mut map = HashMap::new();
+    for (_i, n) in names.into_iter().enumerate() {
+        let i = _i + 1;
+        map.insert(i, n);
+    }
+    map
+}
+
+fn create_number_map(team_num: usize) -> HashMap<usize, String> {
+    let mut map = HashMap::new();
+    for i in 1..=team_num {
+        map.insert(i, i.to_string());
+    }
+    map
 }
