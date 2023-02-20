@@ -17,18 +17,10 @@ fn main() {
         .interact()
         .expect("エラーです。整数を入力してください");
 
-    // 奇数の場合、0を休憩として入れる
-    // 先頭を1にするので0は末尾に入れる
-    let teams: Vec<usize> = if team_num % 2 == 1 {
-        (1..=team_num).chain([0]).collect()
-    } else {
-        (1..=team_num).collect()
-    };
-
-    let games = generate_all_games(&teams);
+    let games = generate_all_games(team_num);
 
     // コート数がチーム数の半分よりも大きければ、毎回全試合できる
-    let court_num = court_num.min(teams.len() / 2);
+    let court_num = court_num.min(team_num / 2);
     let games_at_once = generate_games_at_once(&games, court_num);
     output(games_at_once, court_num);
 }
@@ -88,12 +80,21 @@ fn generate_games_at_once(games: &[(usize, usize)], court_num: usize) -> Vec<Vec
     games_at_once
 }
 
-fn generate_all_games(teams: &[usize]) -> Vec<(usize, usize)> {
+fn generate_all_games(team_num: usize) -> Vec<(usize, usize)> {
+    // 奇数の場合、0を休憩として入れる
+    // 先頭を1にするので0は末尾に入れる
+    let teams: Vec<usize> = if team_num % 2 == 1 {
+        (1..=team_num).chain([0]).collect()
+    } else {
+        (1..=team_num).collect()
+    };
+
     let mut games: Vec<(usize, usize)> = vec![];
 
-    let mut group1: VecDeque<usize> = VecDeque::from(teams[1..teams.len() / 2].to_vec());
+    // チーム1は固定するので飛ばす
+    let mut group1: VecDeque<usize> = VecDeque::from_iter(teams.iter().step_by(2).skip(1).copied());
 
-    let mut group2: VecDeque<usize> = VecDeque::from(teams[teams.len() / 2..].to_vec());
+    let mut group2: VecDeque<usize> = VecDeque::from_iter(teams.iter().skip(1).step_by(2).copied());
 
     for _ in 0..teams.len() - 1 {
         for (&g1, &g2) in [1].iter().chain(&group1).zip(&group2) {
