@@ -38,7 +38,7 @@ fn output(games_at_once: Vec<Vec<(usize, usize)>>, court_num: usize) {
     let header = format!(
         ",{}",
         (1..=court_num)
-            .map(|n| format!("コート{n}"))
+            .map(|n| format!("第{n}コート"))
             .collect::<Vec<String>>()
             .join(",")
     );
@@ -47,7 +47,7 @@ fn output(games_at_once: Vec<Vec<(usize, usize)>>, court_num: usize) {
     for (_i, games) in games_at_once.iter().enumerate() {
         let i = _i + 1;
         let line = format!(
-            "{i}試合目,{}",
+            "第{i}試合,{}",
             games
                 .iter()
                 .map(|(a, b)| format!("{}-{}", a.min(b), a.max(b)))
