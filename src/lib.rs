@@ -56,8 +56,8 @@ pub fn generate_tournament(teams_str: &str, court_num: usize) -> String {
     for (round_idx, round_games) in games_at_once.iter().enumerate() {
         let mut matches = vec![];
         for (court_idx, (team1_id, team2_id)) in round_games.iter().enumerate() {
-            let team1 = name_map.get(team1_id.min(team2_id)).cloned().unwrap_or_default();
-            let team2 = name_map.get(team1_id.max(team2_id)).cloned().unwrap_or_default();
+            let team1 = name_map.get(team1_id).cloned().unwrap_or_default();
+            let team2 = name_map.get(team2_id).cloned().unwrap_or_default();
             matches.push(Match {
                 court_number: court_idx + 1,
                 team1,
