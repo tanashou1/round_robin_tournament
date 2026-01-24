@@ -1,13 +1,21 @@
+#[cfg(feature = "cli")]
 use calamine::{Reader, Xlsx};
+#[cfg(feature = "cli")]
 use core::panic;
+#[cfg(feature = "cli")]
 use std::collections::{HashMap, VecDeque};
 
+#[cfg(feature = "cli")]
 use dialoguer::Input;
 
+#[cfg(feature = "cli")]
 use std::fs::File;
+#[cfg(feature = "cli")]
 use std::io::{prelude::*, BufWriter};
+#[cfg(feature = "cli")]
 use std::path::Path;
 
+#[cfg(feature = "cli")]
 fn main() {
     let file_name = Input::<String>::new()
         .with_prompt("チーム数か、入力のExcelファイルの名前を入力してください。")
@@ -32,6 +40,8 @@ fn main() {
     let games_at_once = generate_games_at_once(&games, court_num);
     output(games_at_once, court_num, name_map);
 }
+
+#[cfg(feature = "cli")]
 
 fn output(
     games_at_once: Vec<Vec<(usize, usize)>>,
@@ -72,6 +82,8 @@ fn output(
     file.flush().unwrap();
 }
 
+#[cfg(feature = "cli")]
+
 fn generate_games_at_once(games: &[(usize, usize)], court_num: usize) -> Vec<Vec<(usize, usize)>> {
     let mut games_at_once = vec![];
 
@@ -91,6 +103,8 @@ fn generate_games_at_once(games: &[(usize, usize)], court_num: usize) -> Vec<Vec
     }
     games_at_once
 }
+
+#[cfg(feature = "cli")]
 
 fn generate_all_games(team_num: usize) -> Vec<(usize, usize)> {
     // 奇数の場合、0を休憩として入れる
@@ -119,6 +133,8 @@ fn generate_all_games(team_num: usize) -> Vec<(usize, usize)> {
     games
 }
 
+#[cfg(feature = "cli")]
+
 fn read_excel(file: &str) -> Vec<String> {
     let mut workbook: Xlsx<_> = calamine::open_workbook(file).unwrap();
 
@@ -131,6 +147,8 @@ fn read_excel(file: &str) -> Vec<String> {
     }
 }
 
+#[cfg(feature = "cli")]
+
 fn create_name_map(file_name: &str) -> HashMap<usize, String> {
     let names = read_excel(file_name);
     let mut map = HashMap::new();
@@ -141,6 +159,7 @@ fn create_name_map(file_name: &str) -> HashMap<usize, String> {
     map
 }
 
+#[cfg(feature = "cli")]
 fn create_number_map(team_num: usize) -> HashMap<usize, String> {
     let mut map = HashMap::new();
     for i in 1..=team_num {
