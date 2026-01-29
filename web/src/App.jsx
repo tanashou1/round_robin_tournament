@@ -104,7 +104,10 @@ function App() {
             type="number"
             id="courtNum"
             value={courtNum}
-            onChange={(e) => setCourtNum(parseInt(e.target.value) || '')}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              setCourtNum(isNaN(value) ? 0 : value);
+            }}
             min="10"
             disabled={loading}
           />
