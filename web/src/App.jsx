@@ -3,7 +3,7 @@ import './App.css'
 
 function App() {
   const [teams, setTeams] = useState('')
-  const [courtNum, setCourtNum] = useState(10)
+  const [courtNum, setCourtNum] = useState('')
   const [result, setResult] = useState(null)
   const [wasmModule, setWasmModule] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -35,8 +35,9 @@ function App() {
       return
     }
 
-    if (!courtNum || courtNum < 10) {
-      setError('コート数は10以上を入力してください')
+    const courtNumValue = parseInt(courtNum, 10)
+    if (!courtNum || isNaN(courtNumValue) || courtNumValue < 1) {
+      setError('コート数は1以上を入力してください')
       return
     }
 
@@ -44,7 +45,7 @@ function App() {
     setError(null)
 
     try {
-      const resultJson = wasmModule.generate_tournament(teams, courtNum)
+      const resultJson = wasmModule.generate_tournament(teams, courtNumValue)
       const parsedResult = JSON.parse(resultJson)
       setResult(parsedResult)
     } catch (err) {
@@ -101,14 +102,16 @@ function App() {
             コート数:
           </label>
           <input
-            type="number"
+            type="text"
             id="courtNum"
             value={courtNum}
             onChange={(e) => {
-              const value = parseInt(e.target.value);
-              setCourtNum(isNaN(value) ? 0 : value);
+              const value = e.target.value;
+              // Allow empty string or numeric input only
+              if (value === '' || /^\d+$/.test(value)) {
+                setCourtNum(value);
+              }
             }}
-            min="10"
             disabled={loading}
           />
         </div>
@@ -118,7 +121,7 @@ function App() {
           disabled={loading || !wasmModule}
           className="generate-btn"
         >
-          {loading ? '生成中...' : 'トーナメント生成'}
+          {loading ? '生成中...' : '試合表作成'}
         </button>
       </div>
 
