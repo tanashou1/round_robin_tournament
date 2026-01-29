@@ -3,7 +3,7 @@ import './App.css'
 
 function App() {
   const [teams, setTeams] = useState('')
-  const [courtNum, setCourtNum] = useState(2)
+  const [courtNum, setCourtNum] = useState(10)
   const [result, setResult] = useState(null)
   const [wasmModule, setWasmModule] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -35,8 +35,8 @@ function App() {
       return
     }
 
-    if (courtNum < 1) {
-      setError('コート数は1以上を入力してください')
+    if (!courtNum || courtNum < 10) {
+      setError('コート数は10以上を入力してください')
       return
     }
 
@@ -79,7 +79,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1>総当たりトーナメント作成</h1>
+      <h1>総当り戦試合表作成</h1>
       
       <div className="input-section">
         <div className="form-group">
@@ -104,8 +104,8 @@ function App() {
             type="number"
             id="courtNum"
             value={courtNum}
-            onChange={(e) => setCourtNum(parseInt(e.target.value) || 1)}
-            min="1"
+            onChange={(e) => setCourtNum(parseInt(e.target.value) || '')}
+            min="10"
             disabled={loading}
           />
         </div>
